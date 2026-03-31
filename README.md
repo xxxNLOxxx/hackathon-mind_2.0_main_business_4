@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Realtime Code Platform
 
 ## Структура проекта
@@ -45,3 +46,6 @@ npm run dev
 
 ## Примечание
 Пока только структура проекта. Код будет добавляться по модулям.
+=======
+# hackathon-mind_2.0_main_business_4
+>>>>>>> e59a0fb34fd3c3ae6551e2fd7af636516ba2adef
