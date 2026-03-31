@@ -1,0 +1,15 @@
+{
+  "name": "realtime-backend",
+  "version": "1.0.0",
+  "description": "Realtime WebSocket backend for collaborative code editor",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node src/server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "ws": "^8.18.0"
+  }
+}
