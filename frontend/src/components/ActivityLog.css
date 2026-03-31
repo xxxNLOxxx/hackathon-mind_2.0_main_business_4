@@ -1,0 +1,66 @@
+.activity-log {
+  background: #252526;
+  border-radius: 6px;
+  padding: 12px;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.activity-log h3 {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #d4d4d4;
+}
+
+.log-items {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.log-item {
+  display: flex;
+  gap: 8px;
+  padding: 6px;
+  font-size: 12px;
+  border-left: 2px solid #4ec9b0;
+  background: #2d2d2d;
+  border-radius: 4px;
+}
+
+.log-icon {
+  font-size: 14px;
+}
+
+.log-content {
+  flex: 1;
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+}
+
+.log-time {
+  color: #858585;
+  font-size: 11px;
+  font-family: monospace;
+}
+
+.log-description {
+  color: #d4d4d4;
+  word-break: break-word;
+}
+
+.log-empty {
+  text-align: center;
+  padding: 20px;
+  color: #858585;
+  font-size: 12px;
+}
+
+.activity-log.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #858585;
+}

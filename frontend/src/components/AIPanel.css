@@ -1,0 +1,269 @@
+.ai-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #1e1e1e;
+  color: #d4d4d4;
+  border-left: 1px solid #333;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.ai-panel-header {
+  padding: 16px;
+  border-bottom: 1px solid #333;
+  background: #252526;
+}
+
+.ai-panel-header h3 {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.analyzing-spinner {
+  display: inline-block;
+  margin-left: 8px;
+  font-size: 12px;
+  color: #4ec9b0;
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.ai-panel-controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.ai-panel-controls select {
+  flex: 1;
+  padding: 4px 8px;
+  background: #3c3c3c;
+  color: #d4d4d4;
+  border: 1px solid #555;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.clear-btn {
+  padding: 4px 12px;
+  background: #0e639c;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.clear-btn:hover {
+  background: #1177bb;
+}
+
+.ai-panel-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: #858585;
+}
+
+.empty-state span {
+  font-size: 32px;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.empty-state p {
+  font-size: 12px;
+  margin: 0;
+}
+
+.analysis-card {
+  background: #2d2d2d;
+  border-left: 3px solid;
+  border-radius: 4px;
+  margin-bottom: 12px;
+  overflow: hidden;
+  transition: all 0.2s;
+}
+
+.analysis-card.error {
+  border-left-color: #f48771;
+}
+
+.analysis-card.warning {
+  border-left-color: #dcdcaa;
+}
+
+.analysis-card.info {
+  border-left-color: #4ec9b0;
+}
+
+.analysis-card.conflict {
+  border-left-color: #ce9178;
+}
+
+.analysis-card.code_review {
+  border-left-color: #9cdcfe;
+}
+
+.analysis-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.analysis-header:hover {
+  background: #3e3e42;
+}
+
+.analysis-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.severity-icon {
+  font-size: 14px;
+}
+
+.type-badge {
+  padding: 2px 6px;
+  background: #3c3c3c;
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.line-info {
+  color: #858585;
+  font-size: 11px;
+}
+
+.dismiss-btn {
+  background: none;
+  border: none;
+  color: #858585;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 4px;
+  border-radius: 3px;
+}
+
+.dismiss-btn:hover {
+  background: #4e4e4e;
+  color: #d4d4d4;
+}
+
+.analysis-message {
+  padding: 0 12px 10px 12px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.user-tag {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 6px;
+  background: #0e639c;
+  border-radius: 3px;
+  font-size: 11px;
+}
+
+.analysis-details {
+  padding: 12px;
+  border-top: 1px solid #3e3e42;
+  background: #252526;
+}
+
+.conflict-resolution h4 {
+  margin: 0 0 12px 0;
+  font-size: 13px;
+}
+
+.conflict-options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.conflict-option {
+  padding: 10px;
+  background: #2d2d2d;
+  border-radius: 4px;
+}
+
+.conflict-option strong {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 12px;
+}
+
+.conflict-option pre {
+  background: #1e1e1e;
+  padding: 8px;
+  border-radius: 4px;
+  overflow-x: auto;
+  font-size: 12px;
+  margin: 8px 0;
+  font-family: 'Consolas', monospace;
+}
+
+.conflict-option button {
+  padding: 4px 12px;
+  background: #0e639c;
+  color: white;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.conflict-option button:hover {
+  background: #1177bb;
+}
+
+.conflict-option.merged {
+  border-left: 2px solid #4ec9b0;
+}
+
+.suggestion-action {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.suggestion-code {
+  background: #1e1e1e;
+  padding: 10px;
+  border-radius: 4px;
+  overflow-x: auto;
+  font-size: 12px;
+  font-family: 'Consolas', monospace;
+}
+
+.suggestion-action button {
+  align-self: flex-start;
+  padding: 6px 16px;
+  background: #0e639c;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.suggestion-action button:hover {
+  background: #1177bb;
+}

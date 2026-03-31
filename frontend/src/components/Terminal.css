@@ -1,0 +1,87 @@
+.terminal-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #1e1e1e;
+  border-top: 1px solid #333;
+}
+
+.terminal-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: #252526;
+  border-bottom: 1px solid #333;
+}
+
+.terminal-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.status-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  animation: pulse 1.5s infinite;
+}
+
+.status-indicator.connected {
+  background-color: #4ec9b0;
+  box-shadow: 0 0 5px #4ec9b0;
+}
+
+.status-indicator.disconnected {
+  background-color: #f48771;
+}
+
+.status-text {
+  color: #d4d4d4;
+}
+
+.terminal-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.terminal-btn {
+  background: #3c3c3c;
+  border: none;
+  color: #d4d4d4;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.terminal-btn:hover {
+  background: #4e4e4e;
+  transform: scale(1.05);
+}
+
+.terminal {
+  flex: 1;
+  padding: 4px;
+}
+
+.terminal .xterm {
+  height: 100%;
+  padding: 8px;
+}
+
+.terminal .xterm-viewport {
+  background-color: #1e1e1e;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}

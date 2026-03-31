@@ -1,0 +1,48 @@
+.app {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: #1e1e1e;
+}
+
+.main-layout {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+.editor-area {
+  flex: 1;
+  overflow: hidden;
+}
+
+.ai-panel-area {
+  width: 350px;
+  border-left: 1px solid #333;
+  overflow-y: auto;
+}
+
+.terminal-area {
+  height: 300px;
+  border-top: 1px solid #333;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #2d2d2d;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #4e4e4e;
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #6e6e6e;
+}
