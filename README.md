@@ -21,6 +21,11 @@ cd backend/realtime
 npm install
 npm run dev
 
+### Sandbox
+cd backend/sandbox
+docker build --no-cache -t sandbox .
+docker run -p 3003:3003 -v //var/run/docker.sock:/var/run/docker.sock sandbox
+
 ### Frontend
 cd frontend
 npm install
