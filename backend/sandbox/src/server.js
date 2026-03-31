@@ -3,7 +3,7 @@ const cors = require('cors');
 const Docker = require('dockerode');
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3003;
 
 const docker = new Docker({ socketPath: '/var/run/docker.sock' });
 
