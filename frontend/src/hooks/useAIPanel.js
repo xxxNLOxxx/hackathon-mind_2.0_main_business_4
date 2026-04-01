@@ -1,5 +1,49 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 
+const LANGUAGE_PROMPTS = {
+  javascript: {
+    name: 'JavaScript',
+    prompt: 'Analyze this JavaScript code for bugs, anti-patterns, and security issues:',
+  },
+  python: {
+    name: 'Python',
+    prompt: 'Analyze this Python code for bugs, anti-patterns, and security issues:',
+  },
+  html: {
+    name: 'HTML',
+    prompt: 'Analyze this HTML code for accessibility issues, semantic errors, and best practices:',
+  },
+  css: {
+    name: 'CSS',
+    prompt: 'Analyze this CSS code for browser compatibility, performance, and best practices:',
+  },
+  typescript: {
+    name: 'TypeScript',
+    prompt: 'Analyze this TypeScript code for type errors, anti-patterns, and best practices:',
+  },
+  java: {
+    name: 'Java',
+    prompt: 'Analyze this Java code for bugs, anti-patterns, and security issues:',
+  },
+  cpp: {
+    name: 'C++',
+    prompt: 'Analyze this C++ code for memory leaks, bugs, and best practices:',
+  },
+  go: {
+    name: 'Go',
+    prompt: 'Analyze this Go code for concurrency issues, bugs, and best practices:',
+  },
+  rust: {
+    name: 'Rust',
+    prompt: 'Analyze this Rust code for memory safety, ownership issues, and best practices:',
+  },
+  sql: {
+    name: 'SQL',
+    prompt: 'Analyze this SQL query for performance issues, injection vulnerabilities, and best practices:',
+  },
+};
+
+
 export const useAIPanel = ({
   roomId,
   userId,
@@ -56,6 +100,7 @@ export const useAIPanel = ({
 
     setIsAnalyzing(true);
     lastCodeRef.current = code;
+    const langInfo = LANGUAGE_PROMPTS[language] || LANGUAGE_PROMPTS.javascript;
 
     const request = {
       code,
@@ -76,7 +121,7 @@ export const useAIPanel = ({
 
     debounceTimeoutRef.current = setTimeout(() => {
       analyzeCode(code, line);
-    }, 500);
+    }, 800);
   }, [analyzeCode]);
 
   const applySuggestion = useCallback((analysisId) => {

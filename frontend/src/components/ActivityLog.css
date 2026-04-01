@@ -1,9 +1,11 @@
+/* components/ActivityLog.css */
 .activity-log {
   background: #252526;
-  border-radius: 6px;
   padding: 12px;
   height: 100%;
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* 🔥 Это убирает внешний скролл */
 }
 
 .activity-log h3 {
@@ -11,26 +13,53 @@
   font-size: 14px;
   font-weight: 600;
   color: #d4d4d4;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #3e3e42;
+  flex-shrink: 0;
 }
 
 .log-items {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  flex: 1;
+  overflow-y: auto; /* 🔥 Только здесь один скролл */
+  padding-right: 4px;
+}
+
+/* Стили для скролла */
+.log-items::-webkit-scrollbar {
+  width: 6px;
+}
+
+.log-items::-webkit-scrollbar-track {
+  background: #2d2d2d;
+  border-radius: 3px;
+}
+
+.log-items::-webkit-scrollbar-thumb {
+  background: #4e4e4e;
+  border-radius: 3px;
+}
+
+.log-items::-webkit-scrollbar-thumb:hover {
+  background: #6e6e6e;
 }
 
 .log-item {
   display: flex;
-  gap: 8px;
-  padding: 6px;
+  gap: 10px;
+  padding: 8px 10px;
   font-size: 12px;
-  border-left: 2px solid #4ec9b0;
+  border-left: 3px solid;
   background: #2d2d2d;
   border-radius: 4px;
+  flex-shrink: 0;
 }
 
 .log-icon {
   font-size: 14px;
+  flex-shrink: 0;
 }
 
 .log-content {
@@ -38,29 +67,47 @@
   display: flex;
   gap: 8px;
   align-items: baseline;
+  flex-wrap: wrap;
 }
 
 .log-time {
   color: #858585;
   font-size: 11px;
   font-family: monospace;
+  flex-shrink: 0;
+}
+
+.log-user {
+  color: #4ec9b0;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.log-user strong {
+  color: #9cdcfe;
 }
 
 .log-description {
   color: #d4d4d4;
   word-break: break-word;
+  flex: 1;
 }
 
 .log-empty {
   text-align: center;
-  padding: 20px;
+  padding: 40px 20px;
   color: #858585;
-  font-size: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
 }
 
-.activity-log.loading {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #858585;
+.log-empty span {
+  font-size: 32px;
+}
+
+.log-empty p {
+  font-size: 12px;
+  margin: 0;
 }

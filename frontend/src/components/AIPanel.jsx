@@ -1,6 +1,19 @@
 import React, { useState } from 'react';
 import './AIPanel.css';
 
+const LANGUAGE_TIPS = {
+  javascript: '💡 Совет: Используйте const/let вместо var, избегайте глобальных переменных',
+  python: '💡 Совет: Следуйте PEP 8, используйте list comprehensions, избегайте глобальных переменных',
+  html: '💡 Совет: Используйте семантические теги (<header>, <nav>, <main>), добавляйте alt для изображений',
+  css: '💡 Совет: Используйте Flexbox/Grid, избегайте !important, оптимизируйте анимации',
+  typescript: '💡 Совет: Используйте строгую типизацию, избегайте any, используйте интерфейсы',
+  java: '💡 Совет: Следуйте Java naming conventions, используйте try-with-resources',
+  cpp: '💡 Совет: Используйте умные указатели, избегайте утечек памяти, используйте const',
+  go: '💡 Совет: Обрабатывайте ошибки явно, используйте горутины аккуратно',
+  rust: '💡 Совет: Используйте ownership правильно, избегайте unwrap(), используйте Result',
+  sql: '💡 Совет: Используйте параметризованные запросы, избегайте SELECT *, добавляйте индексы',
+};
+
 export const AIPanel = ({
   analyses,
   isAnalyzing,

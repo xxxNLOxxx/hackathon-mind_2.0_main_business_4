@@ -8,32 +8,80 @@ import { AIPanel } from './components/AIPanel';
 import { Terminal } from './components/Terminal';
 import { SessionList } from './components/SessionList';
 import { ActivityLog } from './components/ActivityLog';
-import { logActivity } from './api/activity';
-import { getSessionUsers } from './api/sessions';
 import './App.css';
 
 function App() {
-  // Состояния для сессии
   const [sessionId, setSessionId] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
   const [users, setUsers] = useState([]);
   const [onlineUsers, setOnlineUsers] = useState(1);
-  
-  // Состояния для редактора и синхронизации
   const [code, setCode] = useState('// Начните писать код вместе со студентами...');
   const [language, setLanguage] = useState('javascript');
   const [status, setStatus] = useState('Подключение...');
-  
-  // Состояния UI
   const [showTerminal, setShowTerminal] = useState(true);
   const [showAIPanel, setShowAIPanel] = useState(true);
   const [showActivityLog, setShowActivityLog] = useState(true);
+  const [localActivities, setLocalActivities] = useState([]);
   
-  // Refs для Yjs
   const editorRef = useRef(null);
   const yjsProviderRef = useRef(null);
   const yjsDocRef = useRef(null);
   const bindingRef = useRef(null);
+
+  // Функция для текста действий
+  const getActionText = (actionType) => {
+    switch (actionType) {
+      case 'join': return 'присоединился к сессии';
+      case 'leave': return 'покинул сессию';
+      case 'edit': return 'редактировал код';
+      case 'run_code': return 'запустил код';
+      case 'ai_suggestion': return 'применил предложение AI';
+      case 'language_change': return 'сменил язык';
+      default: return 'совершил действие';
+    }
+  };
+
+  // Функция для локального логирования
+  const logLocalActivity = (actionType, description) => {
+    if (!sessionId || !currentUser) return;
+    
+    const newActivity = {
+      activity_log_id: Date.now(),
+      session_id: sessionId,
+      user_id: currentUser.user_id,
+      username: currentUser.username,
+      action_type: actionType,
+      description: description || `${currentUser.username} ${getActionText(actionType)}`,
+      created_at: new Date().toISOString(),
+    };
+    
+    setLocalActivities(prev => [newActivity, ...prev]);
+    
+    // Сохраняем в localStorage
+    const saved = localStorage.getItem(`activities_${sessionId}`);
+    const activities = saved ? JSON.parse(saved) : [];
+    activities.unshift(newActivity);
+    localStorage.setItem(`activities_${sessionId}`, JSON.stringify(activities.slice(0, 100)));
+  };
+
+  // Загружаем сохраненные логи при входе в сессию
+  useEffect(() => {
+    if (sessionId) {
+      const saved = localStorage.getItem(`activities_${sessionId}`);
+      if (saved) {
+        setLocalActivities(JSON.parse(saved));
+      } else {
+        setLocalActivities([]);
+      }
+    }
+  }, [sessionId]);
+
+  // Логируем вход пользователя
+  useEffect(() => {
+    if (sessionId && currentUser) {
+      logLocalActivity('join', `${currentUser.username} присоединился к сессии`);
+    }
+  }, [sessionId, currentUser]);
 
   // AI панель
   const {
@@ -50,13 +98,10 @@ function App() {
     userName: currentUser?.username,
     language,
     onApplySuggestion: async (suggestion, line) => {
-      // Применяем предложение AI в редакторе
       if (editorRef.current) {
         const model = editorRef.current.getModel();
-        const position = { lineNumber: line, column: 1 };
         const range = model.getLineContent(line);
         
-        // Заменяем строку
         model.pushEditOperations(
           [],
           [{
@@ -73,41 +118,26 @@ function App() {
         );
       }
       
-      // Логируем применение AI предложения
-      if (sessionId && currentUser) {
-        await logActivity(
-          sessionId,
-          currentUser.user_id,
-          'ai_suggestion',
-          `${currentUser.username} applied AI suggestion at line ${line}`
-        );
-      }
+      logLocalActivity('ai_suggestion', `${currentUser?.username} применил предложение AI на строке ${line}`);
     },
   });
 
-  // Инициализация Yjs при монтировании редактора
+  // Настройка редактора
   function handleEditorDidMount(editor) {
     editorRef.current = editor;
-
-    // Создаем Y.Doc
+    
     const doc = new Y.Doc();
     yjsDocRef.current = doc;
-
-    // Определяем комнату (используем sessionId или дефолтную)
-    const roomName = sessionId || 'collaborative-room-123';
     
-    // Создаем WebSocket провайдер
+    const roomName = sessionId || 'collaborative-room-123';
     const provider = new WebsocketProvider(
       'ws://localhost:3002',
       roomName,
       doc
     );
     yjsProviderRef.current = provider;
-
-    // Получаем текстовый тип
+    
     const type = doc.getText('monaco');
-
-    // Создаем binding
     const binding = new MonacoBinding(
       type,
       editor.getModel(),
@@ -115,24 +145,16 @@ function App() {
       provider.awareness
     );
     bindingRef.current = binding;
-
-    // Слушаем статус подключения
+    
     provider.on('status', (event) => {
       setStatus(event.status === 'connected' ? 'В сети' : 'Ошибка');
     });
-
-    // Слушаем изменения awareness (пользователи онлайн)
+    
     provider.awareness.on('change', () => {
       const userCount = provider.awareness.getStates().size;
       setOnlineUsers(userCount);
-      
-      // Обновляем локальный список пользователей
-      if (sessionId) {
-        loadUsers();
-      }
     });
-
-    // Устанавливаем локального пользователя
+    
     if (currentUser) {
       provider.awareness.setLocalState({
         user: {
@@ -142,8 +164,7 @@ function App() {
         },
       });
     }
-
-    // Слушаем изменения в документе
+    
     type.observe(() => {
       const currentCode = type.toString();
       setCode(currentCode);
@@ -151,92 +172,25 @@ function App() {
     });
   }
 
-  // Загрузка пользователей из БД
-  const loadUsers = async () => {
-    if (!sessionId) return;
-    try {
-      const usersList = await getSessionUsers(sessionId);
-      setUsers(usersList);
-    } catch (error) {
-      console.error('Error loading users:', error);
-    }
-  };
-
-  // Присоединение к сессии
   const handleJoinSession = async (sessionId, user) => {
     setSessionId(sessionId);
     setCurrentUser(user);
-    
-    // Логируем присоединение
-    await logActivity(
-      sessionId,
-      user.user_id,
-      'join',
-      `${user.username} joined the session`
-    );
-    
-    // Если редактор уже инициализирован, обновляем комнату
-    if (editorRef.current && yjsProviderRef.current) {
-      // Переподключаемся к новой комнате
-      yjsProviderRef.current.disconnect();
-      
-      const newProvider = new WebsocketProvider(
-        'http://localhost:3002',
-        sessionId,
-        yjsDocRef.current
-      );
-      yjsProviderRef.current = newProvider;
-      
-      // Обновляем binding
-      const newBinding = new MonacoBinding(
-        yjsDocRef.current.getText('monaco'),
-        editorRef.current.getModel(),
-        new Set([editorRef.current]),
-        newProvider.awareness
-      );
-      bindingRef.current = newBinding;
-      
-      newProvider.on('status', (event) => {
-        setStatus(event.status === 'connected' ? 'В сети' : 'Ошибка');
-      });
-      
-      // Устанавливаем пользователя
-      newProvider.awareness.setLocalState({
-        user: {
-          id: user.user_id,
-          name: user.username,
-          color: '#' + Math.floor(Math.random() * 16777215).toString(16),
-        },
-      });
-    }
+    setLocalActivities([]);
   };
 
-  // Запуск кода
-  const handleRunCode = async () => {
+  const handleRunCode = () => {
     if (sessionId && currentUser) {
-      await logActivity(
-        sessionId,
-        currentUser.user_id,
-        'run_code',
-        `${currentUser.username} ran the code`
-      );
+      logLocalActivity('run_code', `${currentUser.username} запустил код`);
     }
   };
 
-  // Изменение языка
   const handleLanguageChange = (newLanguage) => {
     setLanguage(newLanguage);
     if (sessionId && currentUser) {
-      logActivity(
-        sessionId,
-        currentUser.user_id,
-        'edit',
-        `${currentUser.username} changed language to ${newLanguage}`
-      );
+      logLocalActivity('language_change', `${currentUser.username} сменил язык на ${newLanguage}`);
     }
   };
 
-  // Если нет сессии - показываем список сессий
   if (!sessionId || !currentUser) {
     return <SessionList onJoinSession={handleJoinSession} />;
   }
@@ -290,11 +244,11 @@ function App() {
               onChange={(e) => handleLanguageChange(e.target.value)}
               className="language-select"
             >
-              <option value="javascript">JavaScript</option>
-              <option value="python">Python</option>
-              <option value="html">HTML</option>
-              <option value="css">CSS</option>
-              <option value="json">JSON</option>
+              <option value="javascript">📜 JavaScript</option>
+              <option value="python">🐍 Python</option>
+              <option value="html">🌐 HTML</option>
+              <option value="css">🎨 CSS</option>
+              <option value="json">🔧 JSON</option>
             </select>
             <button onClick={handleRunCode} className="run-btn">
               ▶️ Run Code
@@ -312,16 +266,16 @@ function App() {
               minimap: { enabled: false },
               scrollBeyondLastLine: false,
               automaticLayout: true,
-              wordWrap: 'on',
-              renderWhitespace: 'selection',
-              tabSize: 2,
             }}
           />
         </div>
         
         {showActivityLog && (
           <div className="activity-log-area">
-            <ActivityLog sessionId={sessionId} />
+            <ActivityLog 
+              sessionId={sessionId} 
+              activities={localActivities}
+            />
           </div>
         )}
         
@@ -334,6 +288,7 @@ function App() {
               onResolveConflict={resolveConflict}
               onDismiss={dismissAnalysis}
               onClearAll={clearAnalyses}
+              language={language}
             />
           </div>
         )}

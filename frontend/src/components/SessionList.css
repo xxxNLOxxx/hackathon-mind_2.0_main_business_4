@@ -214,3 +214,59 @@
   padding: 60px;
   color: #858585;
 }
+.current-user-info {
+  text-align: center;
+  margin-top: 10px;
+  padding: 8px;
+  background: #2d2d2d;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #4ec9b0;
+}
+
+.current-user-info strong {
+  color: #9cdcfe;
+}
+
+.reset-btn {
+  padding: 10px 12px;
+  background: #3c3c3c;
+  color: #d4d4d4;
+  border: 1px solid #555;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.reset-btn:hover {
+  background: #f48771;
+  color: white;
+  border-color: #f48771;
+  transform: scale(1.02);
+}
+
+.user-info {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.username-input {
+  padding: 10px 16px;
+  background: #3c3c3c;
+  border: 1px solid #555;
+  border-radius: 6px;
+  color: #d4d4d4;
+  font-size: 14px;
+  width: 200px;
+  transition: all 0.2s;
+}
+
+.username-input:focus {
+  outline: none;
+  border-color: #4ec9b0;
+  box-shadow: 0 0 5px rgba(78, 201, 176, 0.3);
+}

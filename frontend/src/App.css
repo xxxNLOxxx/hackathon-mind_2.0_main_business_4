@@ -1,3 +1,5 @@
+/* App.css - полностью обновленный */
+
 .app {
   height: 100vh;
   display: flex;
@@ -6,32 +8,197 @@
   background: #1e1e1e;
 }
 
+.header {
+  background: #252526;
+  border-bottom: 1px solid #333;
+  padding: 8px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+  z-index: 10;
+}
+
+.session-info {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.session-info h2 {
+  font-size: 14px;
+  margin: 0;
+  color: #d4d4d4;
+}
+
+.status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.status-dot.online {
+  background: #4ec9b0;
+  box-shadow: 0 0 5px #4ec9b0;
+}
+
+.status-dot.offline {
+  background: #f48771;
+}
+
+.users-list {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.users-label {
+  font-size: 12px;
+  color: #858585;
+}
+
+.user-avatar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #3c3c3c;
+  padding: 4px 8px;
+  border-radius: 20px;
+  font-size: 12px;
+}
+
+.user-avatar img {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+}
+
+.view-controls {
+  display: flex;
+  gap: 8px;
+}
+
+.view-controls button {
+  padding: 4px 12px;
+  background: #3c3c3c;
+  border: none;
+  color: #d4d4d4;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s;
+}
+
+.view-controls button:hover {
+  background: #4e4e4e;
+}
+
+.view-controls button.active {
+  background: #0e639c;
+  color: white;
+}
+
+/* Основная область */
 .main-layout {
   flex: 1;
   display: flex;
   overflow: hidden;
+  min-height: 0;
 }
 
+/* Область редактора */
 .editor-area {
   flex: 1;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
+  min-width: 0;
+}
+
+.editor-toolbar {
+  padding: 8px 12px;
+  background: #2d2d2d;
+  border-bottom: 1px solid #333;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.language-select {
+  padding: 6px 12px;
+  background: #3c3c3c;
+  color: #d4d4d4;
+  border: 1px solid #555;
+  border-radius: 4px;
+  font-size: 13px;
+  cursor: pointer;
+  font-family: monospace;
+  min-width: 140px;
+}
+
+.language-select:hover {
+  background: #4e4e4e;
+  border-color: #4ec9b0;
+}
+
+.language-select:focus {
+  outline: none;
+  border-color: #4ec9b0;
+}
+
+.run-btn {
+  padding: 6px 16px;
+  background: #0e639c;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.run-btn:hover {
+  background: #1177bb;
+  transform: translateY(-1px);
+}
+
+.activity-log-area {
+  width: 280px;
+  border-left: 1px solid #333;
+  overflow-y: auto;
+  background: #252526;
+  flex-shrink: 0;
 }
 
 .ai-panel-area {
-  width: 350px;
+  width: 320px;
   border-left: 1px solid #333;
   overflow-y: auto;
+  background: #252526;
+  flex-shrink: 0;
 }
 
 .terminal-area {
-  height: 300px;
+  height: 280px;
   border-top: 1px solid #333;
+  flex-shrink: 0;
 }
 
-/* Scrollbar styling */
+
 ::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
@@ -40,9 +207,28 @@
 
 ::-webkit-scrollbar-thumb {
   background: #4e4e4e;
-  border-radius: 5px;
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
   background: #6e6e6e;
+}
+
+/* Адаптивность для маленьких экранов */
+@media (max-width: 768px) {
+  .activity-log-area {
+    width: 200px;
+  }
+  
+  .ai-panel-area {
+    width: 240px;
+  }
+  
+  .terminal-area {
+    height: 200px;
+  }
+  
+  .user-avatar span {
+    display: none;
+  }
 }
