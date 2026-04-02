@@ -52,7 +52,6 @@ export const useTerminal = ({ roomId, containerId, userId, onCommandExecuted }) 
     };
   }, [containerId, isInitialized]);
 
-  // 🔥 Запуск кода через бэкенд
   const runCode = async (command) => {
     if (!terminalRef.current) return;
 

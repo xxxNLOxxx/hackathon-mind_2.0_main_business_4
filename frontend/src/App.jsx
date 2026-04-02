@@ -280,9 +280,15 @@ const handleLeaveSession = () => {
               className="language-select"
             >
               <option value="javascript">📜 JavaScript</option>
+              <option value="typescript">📘 TypeScript</option>
               <option value="python">🐍 Python</option>
               <option value="html">🌐 HTML</option>
               <option value="css">🎨 CSS</option>
+              <option value="sql">🗄️ SQL</option>
+              <option value="java">☕ Java</option>
+              <option value="cpp">⚙️ C++</option>
+              <option value="go">🐹 Go</option>
+              <option value="rust">🦀 Rust</option>
               <option value="json">🔧 JSON</option>
             </select>
             <button onClick={handleRunCode} className="run-btn">

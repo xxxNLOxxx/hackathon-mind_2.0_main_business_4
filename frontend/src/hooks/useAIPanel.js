@@ -15,7 +15,6 @@ export const useAIPanel = ({
   const debounceTimeoutRef = useRef(null);
   const lastCodeRef = useRef('');
 
-  // 🔥 Отправляем код на реальный AI бэкенда
   const analyzeCode = useCallback(async (code, line) => {
     if (!code || code.trim().length === 0) return;
     
