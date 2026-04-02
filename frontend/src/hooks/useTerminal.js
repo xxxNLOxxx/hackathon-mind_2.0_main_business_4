@@ -1,16 +1,20 @@
+// hooks/useTerminal.js
 import { useEffect, useRef, useState } from 'react';
 import { Terminal } from 'xterm';
 import { FitAddon } from 'xterm-addon-fit';
-import { WebLinksAddon } from 'xterm-addon-web-links';
 import 'xterm/css/xterm.css';
 
+const API_BASE_URL = 'http://localhost:3002/api';
+
 export const useTerminal = ({ roomId, containerId, userId, onCommandExecuted }) => {
-  const [isConnected, setIsConnected] = useState(false);
+  const [isConnected, setIsConnected] = useState(true); // Всегда true для REST API
   const [isInitialized, setIsInitialized] = useState(false);
   const terminalRef = useRef(null);
-  const wsRef = useRef(null);
   const fitAddonRef = useRef(null);
+  const historyRef = useRef([]);
+  const historyIndexRef = useRef(-1);
 
+  // Инициализация терминала
   useEffect(() => {
     if (isInitialized || !containerId) return;
 
@@ -20,38 +24,15 @@ export const useTerminal = ({ roomId, containerId, userId, onCommandExecuted }) 
     const term = new Terminal({
       cursorBlink: true,
       fontSize: 13,
-      fontFamily: 'Menlo, Monaco, "Courier New", monospace',
+      fontFamily: 'Consolas, monospace',
       theme: {
         background: '#1e1e1e',
         foreground: '#d4d4d4',
-        cursor: '#aeafad',
-        cursorAccent: '#1e1e1e',
-        selection: '#264f78',
-        black: '#1e1e1e',
-        red: '#f48771',
-        green: '#4ec9b0',
-        yellow: '#dcdcaa',
-        blue: '#9cdcfe',
-        magenta: '#c586c0',
-        cyan: '#4ec9b0',
-        white: '#d4d4d4',
-        brightBlack: '#808080',
-        brightRed: '#f48771',
-        brightGreen: '#4ec9b0',
-        brightYellow: '#dcdcaa',
-        brightBlue: '#9cdcfe',
-        brightMagenta: '#c586c0',
-        brightCyan: '#4ec9b0',
-        brightWhite: '#ffffff',
       },
     });
 
     const fitAddon = new FitAddon();
-    const webLinksAddon = new WebLinksAddon();
-
     term.loadAddon(fitAddon);
-    term.loadAddon(webLinksAddon);
-
     term.open(container);
     fitAddon.fit();
 
@@ -59,142 +40,125 @@ export const useTerminal = ({ roomId, containerId, userId, onCommandExecuted }) 
     fitAddonRef.current = fitAddon;
     setIsInitialized(true);
 
-    const handleResize = () => {
-      if (fitAddonRef.current) {
-        fitAddonRef.current.fit();
-        const { cols, rows } = term;
-        if (wsRef.current?.readyState === WebSocket.OPEN) {
-          wsRef.current.send(JSON.stringify({
-            type: 'resize',
-            cols,
-            rows,
-          }));
-        }
-      }
-    };
+    term.write('Welcome to Collaborative IDE!\r\n');
+    term.write('Type your code and press Enter to run\r\n');
+    term.write('$ ');
 
-    window.addEventListener('resize', handleResize);
-
+    window.addEventListener('resize', () => fitAddon.fit());
+    
     return () => {
-      window.removeEventListener('resize', handleResize);
       term.dispose();
+      window.removeEventListener('resize', () => fitAddon.fit());
     };
   }, [containerId, isInitialized]);
 
+  // 🔥 Запуск кода через бэкенд
+  const runCode = async (command) => {
+    if (!terminalRef.current) return;
+
+    terminalRef.current.write(`\r\n> ${command}\r\n`);
+    
+    try {
+      // Получаем текущий код из редактора (нужно передать извне)
+      const code = localStorage.getItem('current_code') || command;
+      const language = localStorage.getItem('current_language') || 'javascript';
+      
+      const response = await fetch(`${API_BASE_URL}/run`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          code,
+          language,
+          stdin: '',
+          timeoutMs: 5000,
+        }),
+      });
+
+      const result = await response.json();
+      
+      if (result.stdout) {
+        terminalRef.current.write(result.stdout);
+      }
+      if (result.stderr) {
+        terminalRef.current.write(`\x1b[1;31m${result.stderr}\x1b[0m`);
+      }
+      
+      onCommandExecuted?.(command);
+    } catch (error) {
+      terminalRef.current.write(`\x1b[1;31mError: ${error.message}\x1b[0m\r\n`);
+    }
+    
+    terminalRef.current.write('\r\n$ ');
+  };
+
+  // Обработка ввода
   useEffect(() => {
     if (!isInitialized || !terminalRef.current) return;
 
-    const ws = new WebSocket(`http://localhost:3002/terminal?roomId=${roomId}&userId=${userId}`);
-    wsRef.current = ws;
-
-    ws.onopen = () => {
-      console.log('Terminal WebSocket connected');
-      setIsConnected(true);
-      
-      const term = terminalRef.current;
-      const { cols, rows } = term;
-      
-      ws.send(JSON.stringify({
-        type: 'init',
-        cols,
-        rows,
-      }));
-
-      term.clear();
-      term.write('\x1b[1;32mConnected to container\x1b[0m\r\n');
-      term.write('$ ');
-    };
-
-    ws.onmessage = (event) => {
-      const term = terminalRef.current;
-      if (!term) return;
-
-      try {
-        const data = JSON.parse(event.data);
-        
-        if (data.type === 'output') {
-          term.write(data.data);
-        } else if (data.type === 'error') {
-          term.write(`\x1b[1;31mError: ${data.message}\x1b[0m\r\n`);
-        } else if (typeof data === 'string') {
-          term.write(data);
-        } else if (event.data instanceof ArrayBuffer) {
-          term.write(new Uint8Array(event.data));
-        }
-      } catch (error) {
-        term.write(event.data);
-      }
-    };
-
-    ws.onerror = (error) => {
-      console.error('Terminal WebSocket error:', error);
-      const term = terminalRef.current;
-      if (term) {
-        term.write('\x1b[1;31mWebSocket connection error\x1b[0m\r\n');
-      }
-    };
-
-    ws.onclose = () => {
-      setIsConnected(false);
-      const term = terminalRef.current;
-      if (term) {
-        term.write('\x1b[1;33mDisconnected from container. Reconnecting...\x1b[0m\r\n');
-      }
-      
-    };
+    let currentLine = '';
 
     const onData = (data) => {
-      if (ws.readyState === WebSocket.OPEN) {
-        ws.send(JSON.stringify({
-          type: 'input',
-          data,
-        }));
-        
+      if (data === '\r') { // Enter
+        if (currentLine.trim()) {
+          historyRef.current.push(currentLine);
+          historyIndexRef.current = historyRef.current.length;
+          runCode(currentLine);
+        } else {
+          terminalRef.current.write('\r\n$ ');
+        }
+        currentLine = '';
+      } 
+      else if (data === '\x7f') { // Backspace
+        if (currentLine.length > 0) {
+          currentLine = currentLine.slice(0, -1);
+          terminalRef.current.write('\b \b');
+        }
+      }
+      else if (data === '\x1b[A') { // Up arrow
+        if (historyIndexRef.current > 0) {
+          historyIndexRef.current--;
+          const prevCommand = historyRef.current[historyIndexRef.current];
+          if (prevCommand) {
+            // Clear current line
+            for (let i = 0; i < currentLine.length; i++) {
+              terminalRef.current.write('\b \b');
+            }
+            currentLine = prevCommand;
+            terminalRef.current.write(currentLine);
+          }
+        }
+      }
+      else if (data === '\x1b[B') { // Down arrow
+        if (historyIndexRef.current < historyRef.current.length - 1) {
+          historyIndexRef.current++;
+          const nextCommand = historyRef.current[historyIndexRef.current];
+          // Clear current line
+          for (let i = 0; i < currentLine.length; i++) {
+            terminalRef.current.write('\b \b');
+          }
+          currentLine = nextCommand;
+          terminalRef.current.write(currentLine);
+        }
+      }
+      else if (data.charCodeAt(0) >= 32) { // Printable characters
+        currentLine += data;
+        terminalRef.current.write(data);
       }
     };
 
     terminalRef.current.onData(onData);
-
+    
     return () => {
-      ws.close();
+      terminalRef.current?.offData(onData);
     };
-  }, [isInitialized, roomId, userId, onCommandExecuted]);
+  }, [isInitialized]);
 
-  const fit = () => {
-    if (fitAddonRef.current) {
-      fitAddonRef.current.fit();
-    }
-  };
+  const fit = () => fitAddonRef.current?.fit();
+  const clear = () => terminalRef.current?.clear();
+  const write = (data) => terminalRef.current?.write(data);
+  const sendCommand = (command) => runCode(command);
 
-  const clear = () => {
-    const term = terminalRef.current;
-    if (term) {
-      term.clear();
-    }
-  };
-
-  const write = (data) => {
-    const term = terminalRef.current;
-    if (term) {
-      term.write(data);
-    }
-  };
-
-  const sendCommand = (command) => {
-    if (wsRef.current?.readyState === WebSocket.OPEN) {
-      wsRef.current.send(JSON.stringify({
-        type: 'input',
-        data: command + '\r',
-      }));
-    }
-  };
-
-  return {
-    isConnected,
-    isInitialized,
-    fit,
-    clear,
-    write,
-    sendCommand,
-  };
+  return { isConnected, isInitialized, fit, clear, write, sendCommand };
 };

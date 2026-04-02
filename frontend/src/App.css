@@ -214,7 +214,6 @@
   background: #6e6e6e;
 }
 
-/* Адаптивность для маленьких экранов */
 @media (max-width: 768px) {
   .activity-log-area {
     width: 200px;
@@ -232,3 +231,21 @@
     display: none;
   }
 }
+
+
+.leave-btn {
+    padding: 4px 12px;
+    background: #f48771;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.2s;
+    margin-left: 8px;
+}
+
+    .leave-btn:hover {
+        background: #d63e1f;
+        transform: scale(1.02);
+    }

@@ -122,6 +122,18 @@ function App() {
     },
   });
 
+
+  const handleEditorChange = (value) => {
+  if (value) {
+    setCode(value);
+    localStorage.setItem('current_code', value); // Сохраняем для терминала
+    onCodeChange(value, 0); // Отправляем на AI анализ
+  }
+};
+
+
+
+
   // Настройка редактора
   function handleEditorDidMount(editor) {
     editorRef.current = editor;
@@ -171,6 +183,22 @@ function App() {
       onCodeChange(currentCode, 0);
     });
   }
+ 
+const handleLeaveSession = () => {
+  // Логируем выход
+  if (sessionId && currentUser) {
+    logLocalActivity('leave', `${currentUser.username} покинул сессию`);
+  }
+  
+  // Очищаем состояние
+  setSessionId(null);
+  setCurrentUser(null);
+  setLocalActivities([]);
+  
+  if (yjsProviderRef.current) {
+    yjsProviderRef.current.disconnect();
+  }
+};
 
   const handleJoinSession = async (sessionId, user) => {
     setSessionId(sessionId);
@@ -185,7 +213,8 @@ function App() {
   };
 
   const handleLanguageChange = (newLanguage) => {
-    setLanguage(newLanguage);
+     setLanguage(newLanguage);
+  localStorage.setItem('current_language', newLanguage);
     if (sessionId && currentUser) {
       logLocalActivity('language_change', `${currentUser.username} сменил язык на ${newLanguage}`);
     }
@@ -233,6 +262,12 @@ function App() {
           >
             💻 Terminal
           </button>
+          <button 
+    onClick={handleLeaveSession}
+    className="leave-btn"
+  >
+    🚪 Exit
+  </button>
         </div>
       </header>
 
@@ -255,19 +290,20 @@ function App() {
             </button>
           </div>
           <Editor
-            height="100%"
-            language={language}
-            value={code}
-            theme="vs-dark"
-            onMount={handleEditorDidMount}
-            options={{
-              fontSize: 14,
-              fontFamily: 'Consolas, "Courier New", monospace',
-              minimap: { enabled: false },
-              scrollBeyondLastLine: false,
-              automaticLayout: true,
-            }}
-          />
+  height="100%"
+  language={language}
+  value={code}
+  onChange={handleEditorChange} 
+  theme="vs-dark"
+  onMount={handleEditorDidMount}
+  options={{
+    fontSize: 14,
+    fontFamily: 'Consolas, "Courier New", monospace',
+    minimap: { enabled: false },
+    scrollBeyondLastLine: false,
+    automaticLayout: true,
+  }}
+/>
         </div>
         
         {showActivityLog && (
